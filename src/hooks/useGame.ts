@@ -28,6 +28,7 @@ export function useGame(settings: GameSettings) {
   // controls
   const setDir = useCallback((player: 'p1' | 'p2', dir: Direction) => {
     setState((s) => {
+      if (s.phase !== 'running') return s
       const snakes = s.snakes.map((sn) => ({ ...sn, body: sn.body }))
       const target = snakes.find((sn) => sn.id === player)
       if (target && target.alive) setSnakeDir(target, dir)
@@ -35,7 +36,11 @@ export function useGame(settings: GameSettings) {
     })
   }, [])
 
-  const toggleRunning = useCallback(() => setState((s) => ({ ...s, phase: s.phase === 'running' ? 'paused' : 'running' })), [])
+  const toggleRunning = useCallback(() => setState((s) => {
+    if (s.phase === 'running') return { ...s, phase: 'paused' }
+    if (s.phase === 'paused') return { ...s, phase: 'running' }
+    return s
+  }), [])
   const reset = useCallback(() => setState(initialState(settings)), [settings])
   const nextRound = useCallback(() => setState((s) => {
     if (s.phase !== 'gameover') return s
@@ -58,6 +63,7 @@ export function useGame(settings: GameSettings) {
         case ' ': toggleRunning(); e.preventDefault(); break
         case 'r': case 'R': reset(); break
         case 'n': case 'N': setState((s) => (s.phase === 'gameover' ? prepareNextRound(s, settings) : s)); break
+        case 'Enter': setState((s) => (s.phase === 'gameover' ? prepareNextRound(s, settings) : s)); break
       }
     }
     window.addEventListener('keydown', onKey)

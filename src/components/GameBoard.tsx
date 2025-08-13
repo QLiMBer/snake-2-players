@@ -144,7 +144,7 @@ export function GameBoard({ size, showGrid, state, onNextRound, onRestart }: Pro
         {state.phase === 'gameover' && (
           <div className="board-placeholder" aria-hidden>
             <span>{state.roundWinner === 'draw' ? 'Draw!' : `${state.roundWinner?.toUpperCase()} Wins Round ${state.round}`}</span>
-            <small>Next: Round {Math.min(state.round + 1, state.roundsTotal)} of {state.roundsTotal}</small>
+            <small>Press N or Enter — Next: Round {Math.min(state.round + 1, state.roundsTotal)} of {state.roundsTotal}</small>
             <button className="btn" onClick={onNextRound}>Next Round</button>
           </div>
         )}
