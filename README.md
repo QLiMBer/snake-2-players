@@ -14,8 +14,6 @@ What’s included
 - Scoreboard placeholders for Player 1 and 2
 
 Next steps
-- Implement game state update loop (tick)
-- Render snakes and food on canvas/SVG
-- Keyboard controls (WASD for P1, Arrows for P2)
-- Add wall-collision vs wrap-around behavior
-
+- Game over screen and restart flow
+- Countdown at start of each round
+- Add more animations and polish

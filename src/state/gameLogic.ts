@@ -1,4 +1,4 @@
-import type { Direction, GameSettings, GameState, Snake, Vec } from './gameTypes'
+import type { Direction, GameSettings, GameEvent, GameState, Snake, Vec } from './gameTypes'
 
 export function vecEq(a: Vec, b: Vec): boolean {
   return a.x === b.x && a.y === b.y
@@ -60,12 +60,15 @@ export function initialState(size: number): GameState {
     alive: true,
   }
   const occupied = [...p1.body, ...p2.body]
+  const food = spawnFood(size, occupied)
   return {
-    food: spawnFood(size, occupied),
+    food,
     snakes: [p1, p2],
-    running: true,
+    phase: 'countdown',
+    countdownMsLeft: 3000,
     tick: 0,
     scores: { p1: 0, p2: 0 },
+    events: [{ type: 'spawnFood', at: food }],
   }
 }
 
@@ -78,6 +81,7 @@ export function step(state: GameState, settings: GameSettings): GameState {
 
   let food = state.food
   const scores = { ...state.scores }
+  const events: GameEvent[] = []
 
   for (const s of snakes) {
     if (!s.alive) continue
@@ -106,6 +110,7 @@ export function step(state: GameState, settings: GameSettings): GameState {
     }
     if (collides) {
       s.alive = false
+      events.push({ type: 'death', at: head, who: s.id })
       continue
     }
 
@@ -116,9 +121,11 @@ export function step(state: GameState, settings: GameSettings): GameState {
     if (willEat) {
       if (s.id === 'p1') scores.p1 += 1
       else scores.p2 += 1
+      events.push({ type: 'eat', at: head, who: s.id })
       // do not pop tail (growth)
       const allOcc = snakes.flatMap((sn) => sn.body)
       food = spawnFood(size, allOcc)
+      events.push({ type: 'spawnFood', at: food })
     } else {
       s.body.pop()
     }
@@ -131,16 +138,27 @@ export function step(state: GameState, settings: GameSettings): GameState {
     }
   }
 
-  const anyAlive = snakes.some((s) => s.alive)
-  const running = anyAlive ? state.running : false
+  const p1Alive = snakes.find((s) => s.id === 'p1')!.alive
+  const p2Alive = snakes.find((s) => s.id === 'p2')!.alive
+  let phase = state.phase
+  let winner: GameState['winner'] = state.winner
+  const anyDied = !p1Alive || !p2Alive
+  if (anyDied) {
+    if (p1Alive && !p2Alive) winner = 'p1'
+    else if (!p1Alive && p2Alive) winner = 'p2'
+    else winner = 'draw'
+    phase = 'gameover'
+  }
 
   return {
     ...state,
     food,
     snakes,
     scores,
-    running,
+    phase,
+    winner,
     tick: state.tick + 1,
+    events,
   }
 }
 

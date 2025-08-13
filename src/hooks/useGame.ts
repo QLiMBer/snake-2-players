@@ -12,10 +12,10 @@ export function useGame(settings: GameSettings) {
   }, [settings.boardSize])
 
   const tickOnce = useCallback(() => {
-    setState((s) => (s.running ? step(s, settings) : s))
+    setState((s) => (s.phase === 'running' ? step(s, settings) : s))
   }, [settings])
 
-  // interval driver
+  // interval driver for game steps
   useEffect(() => {
     if (timerRef.current) window.clearInterval(timerRef.current)
     timerRef.current = window.setInterval(tickOnce, settings.tickMs) as unknown as number
@@ -35,7 +35,7 @@ export function useGame(settings: GameSettings) {
     })
   }, [])
 
-  const toggleRunning = useCallback(() => setState((s) => ({ ...s, running: !s.running })), [])
+  const toggleRunning = useCallback(() => setState((s) => ({ ...s, phase: s.phase === 'running' ? 'paused' : 'running' })), [])
   const reset = useCallback(() => setState(initialState(settings.boardSize)), [settings.boardSize])
 
   // keyboard
@@ -58,6 +58,22 @@ export function useGame(settings: GameSettings) {
     return () => window.removeEventListener('keydown', onKey)
   }, [setDir, toggleRunning, reset])
 
+  // countdown driver
+  useEffect(() => {
+    if (state.phase !== 'countdown') return
+    if (state.countdownMsLeft <= 0) {
+      setState((s) => ({ ...s, phase: 'running', countdownMsLeft: 0 }))
+      return
+    }
+    const id = window.setInterval(() => {
+      setState((s) => {
+        if (s.phase !== 'countdown') return s
+        const left = Math.max(0, s.countdownMsLeft - 100)
+        return left === 0 ? { ...s, phase: 'running', countdownMsLeft: 0 } : { ...s, countdownMsLeft: left }
+      })
+    }, 100)
+    return () => window.clearInterval(id)
+  }, [state.phase, state.countdownMsLeft])
+
   return useMemo(() => ({ state, setDir, toggleRunning, reset }), [state, setDir, toggleRunning, reset])
 }
-

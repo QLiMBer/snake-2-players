@@ -58,8 +58,10 @@ export default function App() {
         <section className="stage">
           <ScoreBoard p1={game.state.scores.p1} p2={game.state.scores.p2} />
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <button className="btn" onClick={game.toggleRunning}>{game.state.running ? 'Pause' : 'Resume'}</button>
-            <button className="btn" onClick={game.reset}>Reset (R)</button>
+            <button className="btn" onClick={game.toggleRunning} disabled={game.state.phase === 'countdown' || game.state.phase === 'gameover'}>
+              {game.state.phase === 'running' ? 'Pause' : 'Resume'}
+            </button>
+            <button className="btn" onClick={game.reset}>Restart (R)</button>
           </div>
           <GameBoard size={boardStyle.size} showGrid={boardStyle.grid} state={game.state} />
         </section>
