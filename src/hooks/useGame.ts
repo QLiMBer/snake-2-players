@@ -1,15 +1,15 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { Direction, GameSettings, GameState } from '../state/gameTypes'
-import { initialState, setSnakeDir, step } from '../state/gameLogic'
+import { initialState, prepareNextRound, setSnakeDir, step } from '../state/gameLogic'
 
 export function useGame(settings: GameSettings) {
-  const [state, setState] = useState<GameState>(() => initialState(settings.boardSize))
+  const [state, setState] = useState<GameState>(() => initialState(settings))
   const timerRef = useRef<number | null>(null)
 
-  // restart when board size changes
+  // restart when board size or rounds change
   useEffect(() => {
-    setState(initialState(settings.boardSize))
-  }, [settings.boardSize])
+    setState(initialState(settings))
+  }, [settings.boardSize, settings.roundsTotal])
 
   const tickOnce = useCallback(() => {
     setState((s) => (s.phase === 'running' ? step(s, settings) : s))
@@ -36,7 +36,12 @@ export function useGame(settings: GameSettings) {
   }, [])
 
   const toggleRunning = useCallback(() => setState((s) => ({ ...s, phase: s.phase === 'running' ? 'paused' : 'running' })), [])
-  const reset = useCallback(() => setState(initialState(settings.boardSize)), [settings.boardSize])
+  const reset = useCallback(() => setState(initialState(settings)), [settings])
+  const nextRound = useCallback(() => setState((s) => {
+    if (s.phase !== 'gameover') return s
+    if (s.round >= s.roundsTotal) return s
+    return prepareNextRound(s, settings)
+  }), [settings])
 
   // keyboard
   useEffect(() => {
@@ -52,6 +57,7 @@ export function useGame(settings: GameSettings) {
         case 'ArrowRight': setDir('p2', 'right'); e.preventDefault(); break
         case ' ': toggleRunning(); e.preventDefault(); break
         case 'r': case 'R': reset(); break
+        case 'n': case 'N': setState((s) => (s.phase === 'gameover' ? prepareNextRound(s, settings) : s)); break
       }
     }
     window.addEventListener('keydown', onKey)
@@ -75,5 +81,5 @@ export function useGame(settings: GameSettings) {
     return () => window.clearInterval(id)
   }, [state.phase, state.countdownMsLeft])
 
-  return useMemo(() => ({ state, setDir, toggleRunning, reset }), [state, setDir, toggleRunning, reset])
+  return useMemo(() => ({ state, setDir, toggleRunning, reset, nextRound }), [state, setDir, toggleRunning, reset, nextRound])
 }

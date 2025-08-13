@@ -6,6 +6,7 @@ type Props = {
   onToggleGrid: () => void
   onChangeBoardSize: (v: number) => void
   onChangeTickMs: (v: number) => void
+  onChangeRounds: (v: number) => void
 }
 
 export function SettingsPanel({
@@ -14,6 +15,7 @@ export function SettingsPanel({
   onToggleGrid,
   onChangeBoardSize,
   onChangeTickMs,
+  onChangeRounds,
 }: Props) {
   return (
     <div className="panel">
@@ -58,10 +60,21 @@ export function SettingsPanel({
         <span className="hint">{settings.tickMs} ms</span>
       </div>
 
+      <div className="field">
+        <label>Rounds</label>
+        <input
+          type="range"
+          min={1}
+          max={20}
+          value={settings.roundsTotal}
+          onChange={(e) => onChangeRounds(parseInt(e.target.value, 10))}
+        />
+        <span className="hint">{settings.roundsTotal}</span>
+      </div>
+
       <p className="muted">
         Tip: P1 uses WASD, P2 uses Arrow Keys. Space to pause.
       </p>
     </div>
   )
 }
-

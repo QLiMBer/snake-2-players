@@ -45,7 +45,8 @@ export function spawnFood(size: number, occupied: Vec[]): Vec {
   return { x: 0, y: 0 }
 }
 
-export function initialState(size: number): GameState {
+export function initialState(settings: GameSettings): GameState {
+  const size = settings.boardSize
   const mid = Math.floor(size / 2)
   const p1: Snake = {
     id: 'p1',
@@ -69,6 +70,27 @@ export function initialState(size: number): GameState {
     tick: 0,
     scores: { p1: 0, p2: 0 },
     events: [{ type: 'spawnFood', at: food }],
+    round: 1,
+    roundsTotal: settings.roundsTotal,
+  }
+}
+
+export function prepareNextRound(prev: GameState, settings: GameSettings): GameState {
+  const size = settings.boardSize
+  const mid = Math.floor(size / 2)
+  const p1: Snake = { id: 'p1', dir: 'right', body: [ { x: 2, y: mid }, { x: 1, y: mid }, { x: 0, y: mid } ], alive: true }
+  const p2: Snake = { id: 'p2', dir: 'left', body: [ { x: size - 3, y: mid }, { x: size - 2, y: mid }, { x: size - 1, y: mid } ], alive: true }
+  const occupied = [...p1.body, ...p2.body]
+  const food = spawnFood(size, occupied)
+  return {
+    ...prev,
+    food,
+    snakes: [p1, p2],
+    phase: 'countdown',
+    countdownMsLeft: 3000,
+    events: [{ type: 'spawnFood', at: food }],
+    round: Math.min(prev.round + 1, prev.roundsTotal),
+    roundWinner: undefined,
   }
 }
 
@@ -160,16 +182,22 @@ export function step(state: GameState, settings: GameSettings): GameState {
   const p1Alive = snakes.find((s) => s.id === 'p1')!.alive
   const p2Alive = snakes.find((s) => s.id === 'p2')!.alive
   let phase = state.phase
-  let winner: GameState['winner'] = state.winner
+  let roundWinner: GameState['roundWinner'] = state.roundWinner
+  let matchWinner: GameState['matchWinner'] = state.matchWinner
   const anyDied = !p1Alive || !p2Alive
   if (anyDied) {
-    if (p1Alive && !p2Alive) winner = 'p1'
-    else if (!p1Alive && p2Alive) winner = 'p2'
-    else winner = 'draw'
-    phase = 'gameover'
+    if (p1Alive && !p2Alive) roundWinner = 'p1'
+    else if (!p1Alive && p2Alive) roundWinner = 'p2'
+    else roundWinner = 'draw'
+    if (state.round >= state.roundsTotal) {
+      phase = 'matchover'
+      matchWinner = scores.p1 > scores.p2 ? 'p1' : scores.p1 < scores.p2 ? 'p2' : 'draw'
+    } else {
+      phase = 'gameover'
+    }
   }
 
-  return { ...state, food, snakes, scores, phase, winner, tick: state.tick + 1, events }
+  return { ...state, food, snakes, scores, phase, roundWinner, matchWinner, tick: state.tick + 1, events }
 }
 
 export function setSnakeDir(s: Snake, d: Direction) {

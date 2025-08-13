@@ -12,6 +12,7 @@ export default function App() {
     wallCollision: true,
     showGrid: true,
     theme: 'dark',
+    roundsTotal: 10,
   })
 
   useEffect(() => {
@@ -52,23 +53,27 @@ export default function App() {
             onToggleGrid={onToggleGrid}
             onChangeBoardSize={(v) => setSettings((s) => ({ ...s, boardSize: v }))}
             onChangeTickMs={(v) => setSettings((s) => ({ ...s, tickMs: v }))}
+            onChangeRounds={(v) => setSettings((s) => ({ ...s, roundsTotal: v }))}
           />
         </aside>
 
         <section className="stage">
-          <ScoreBoard p1={game.state.scores.p1} p2={game.state.scores.p2} />
+          <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+            <ScoreBoard p1={game.state.scores.p1} p2={game.state.scores.p2} />
+            <span style={{ color: 'var(--muted)' }}>Round {game.state.round}/{game.state.roundsTotal}</span>
+          </div>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             <button className="btn" onClick={game.toggleRunning} disabled={game.state.phase === 'countdown' || game.state.phase === 'gameover'}>
               {game.state.phase === 'running' ? 'Pause' : 'Resume'}
             </button>
-            <button className="btn" onClick={game.reset}>Restart (R)</button>
+            <button className="btn" onClick={game.reset}>Restart Match (R)</button>
           </div>
-          <GameBoard size={boardStyle.size} showGrid={boardStyle.grid} state={game.state} />
+          <GameBoard size={boardStyle.size} showGrid={boardStyle.grid} state={game.state} onNextRound={game.nextRound} onRestart={game.reset} />
         </section>
       </main>
 
       <footer className="app-footer">
-        <span>Controls: P1 ⌨️ WASD · P2 ⌨️ Arrows · Space to pause</span>
+        <span>Controls: P1 ⌨️ WASD · P2 ⌨️ Arrows · Space to pause · R to restart match</span>
       </footer>
     </div>
   )

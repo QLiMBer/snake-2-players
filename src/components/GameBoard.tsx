@@ -5,9 +5,11 @@ type Props = {
   size: number
   showGrid: boolean
   state: GameState
+  onNextRound?: () => void
+  onRestart?: () => void
 }
 
-export function GameBoard({ size, showGrid, state }: Props) {
+export function GameBoard({ size, showGrid, state, onNextRound, onRestart }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [dimPx, setDimPx] = useState<number>(() => Math.min(720, Math.round(window.innerWidth * 0.9)))
@@ -136,14 +138,21 @@ export function GameBoard({ size, showGrid, state }: Props) {
             <span style={{ fontSize: 48 }}>
               {Math.max(1, Math.ceil(state.countdownMsLeft / 1000))}
             </span>
-            <small>Get Ready…</small>
+            <small>Get Ready — Round {state.round}/{state.roundsTotal}</small>
           </div>
         )}
         {state.phase === 'gameover' && (
           <div className="board-placeholder" aria-hidden>
-            <span>{state.winner === 'draw' ? 'Draw!' : `${state.winner?.toUpperCase()} Wins!`}</span>
-            <small>Press R or click Play Again</small>
-            <button className="btn" onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'r' }))}>Play Again</button>
+            <span>{state.roundWinner === 'draw' ? 'Draw!' : `${state.roundWinner?.toUpperCase()} Wins Round ${state.round}`}</span>
+            <small>Next: Round {Math.min(state.round + 1, state.roundsTotal)} of {state.roundsTotal}</small>
+            <button className="btn" onClick={onNextRound}>Next Round</button>
+          </div>
+        )}
+        {state.phase === 'matchover' && (
+          <div className="board-placeholder" aria-hidden>
+            <span>{state.matchWinner === 'draw' ? 'Match Draw!' : `${state.matchWinner?.toUpperCase()} Wins the Match!`}</span>
+            <small>Final Score — P1 {state.scores.p1} · P2 {state.scores.p2}</small>
+            <button className="btn" onClick={onRestart}>Restart Match</button>
           </div>
         )}
       </div>

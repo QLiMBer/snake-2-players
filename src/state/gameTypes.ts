@@ -16,17 +16,21 @@ export type GameSettings = {
   wallCollision: boolean
   showGrid: boolean
   theme: 'dark' | 'light'
+  roundsTotal: number
 }
 
 export type GameState = {
   food: Vec
   snakes: Snake[]
-  phase: 'countdown' | 'running' | 'paused' | 'gameover'
+  phase: 'countdown' | 'running' | 'paused' | 'gameover' | 'matchover'
   countdownMsLeft: number
   tick: number
   scores: { p1: number; p2: number }
-  winner?: 'p1' | 'p2' | 'draw'
+  roundWinner?: 'p1' | 'p2' | 'draw'
+  matchWinner?: 'p1' | 'p2' | 'draw'
   events: GameEvent[]
+  round: number
+  roundsTotal: number
 }
 
 export type GameEvent =
