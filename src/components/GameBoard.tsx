@@ -142,7 +142,8 @@ export function GameBoard({ size, showGrid, state }: Props) {
         {state.phase === 'gameover' && (
           <div className="board-placeholder" aria-hidden>
             <span>{state.winner === 'draw' ? 'Draw!' : `${state.winner?.toUpperCase()} Wins!`}</span>
-            <small>Press R to restart</small>
+            <small>Press R or click Play Again</small>
+            <button className="btn" onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'r' }))}>Play Again</button>
           </div>
         )}
       </div>

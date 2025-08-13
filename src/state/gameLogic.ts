@@ -76,66 +76,85 @@ export function step(state: GameState, settings: GameSettings): GameState {
   const size = settings.boardSize
   const snakes: Snake[] = state.snakes.map((s) => ({ ...s, body: [...s.body] }))
 
-  // build occupied set for collision
-  const occupiedAll = new Set(snakes.flatMap((s) => s.body).map((v) => v.x + ':' + v.y))
-
+  // Precompute intentions
+  const nextHeads: Record<'p1'|'p2', Vec> = { p1: { x: 0, y: 0 }, p2: { x: 0, y: 0 } }
+  const willEatIntent: Record<'p1'|'p2', boolean> = { p1: false, p2: false }
+  const dead: Record<'p1'|'p2', boolean> = { p1: false, p2: false }
+  const events: GameEvent[] = []
   let food = state.food
   const scores = { ...state.scores }
-  const events: GameEvent[] = []
 
   for (const s of snakes) {
-    if (!s.alive) continue
+    if (!s.alive) { dead[s.id] = true; continue }
     s.dir = nextDir(s.dir, s.pendingDir)
     s.pendingDir = undefined
     let head = stepHead(s.body[0], s.dir)
-    if (!settings.wallCollision) {
-      head = wrap(head, size)
-    }
-
+    if (!settings.wallCollision) head = wrap(head, size)
     // wall collision
     if (settings.wallCollision && (head.x < 0 || head.x >= size || head.y < 0 || head.y >= size)) {
-      s.alive = false
-      continue
-    }
-
-    // self collision or other snake
-    const key = head.x + ':' + head.y
-    // account for own tail moving if not eating
-    const willEat = vecEq(head, food)
-    let collides = occupiedAll.has(key)
-    if (collides && !willEat) {
-      const ownTail = s.body[s.body.length - 1]
-      const ownTailKey = ownTail.x + ':' + ownTail.y
-      if (key === ownTailKey) collides = false
-    }
-    if (collides) {
-      s.alive = false
+      dead[s.id] = true
       events.push({ type: 'death', at: head, who: s.id })
-      continue
     }
+    nextHeads[s.id] = head
+    willEatIntent[s.id] = vecEq(head, food)
+  }
 
-    // move
+  // Head-to-head equal cell
+  const h1 = nextHeads.p1, h2 = nextHeads.p2
+  if (!dead.p1 && !dead.p2 && vecEq(h1, h2)) {
+    dead.p1 = true; dead.p2 = true
+    events.push({ type: 'death', at: h1, who: 'p1' })
+    events.push({ type: 'death', at: h2, who: 'p2' })
+  }
+  // Head swap
+  const cur1 = snakes.find((s) => s.id === 'p1')!.body[0]
+  const cur2 = snakes.find((s) => s.id === 'p2')!.body[0]
+  if (!dead.p1 && !dead.p2 && vecEq(h1, cur2) && vecEq(h2, cur1)) {
+    dead.p1 = true; dead.p2 = true
+    events.push({ type: 'death', at: h1, who: 'p1' })
+    events.push({ type: 'death', at: h2, who: 'p2' })
+  }
+
+  // Occupied cells excluding tails that move away (when that snake doesn't eat)
+  const occupied = new Set<string>()
+  for (const sn of snakes) {
+    const cells = sn.body
+    for (let i = 0; i < cells.length; i++) {
+      const isTail = i === cells.length - 1
+      if (isTail && !willEatIntent[sn.id]) continue
+      occupied.add(cells[i].x + ':' + cells[i].y)
+    }
+  }
+
+  // Body collisions
+  for (const s of snakes) {
+    if (dead[s.id]) continue
+    const key = nextHeads[s.id].x + ':' + nextHeads[s.id].y
+    if (occupied.has(key)) {
+      dead[s.id] = true
+      events.push({ type: 'death', at: nextHeads[s.id], who: s.id })
+    }
+  }
+
+  // Apply moves and eating
+  for (const s of snakes) {
+    if (dead[s.id]) { s.alive = false; continue }
+    const head = nextHeads[s.id]
     s.body.unshift(head)
-
-    // eat
-    if (willEat) {
-      if (s.id === 'p1') scores.p1 += 1
-      else scores.p2 += 1
+    const eat = willEatIntent[s.id]
+    if (eat) {
+      if (s.id === 'p1') scores.p1 += 1; else scores.p2 += 1
       events.push({ type: 'eat', at: head, who: s.id })
-      // do not pop tail (growth)
-      const allOcc = snakes.flatMap((sn) => sn.body)
-      food = spawnFood(size, allOcc)
-      events.push({ type: 'spawnFood', at: food })
     } else {
       s.body.pop()
     }
+  }
 
-    // update occupiedAll for subsequent snakes this tick
-    occupiedAll.add(key)
-    if (!willEat) {
-      const tail = s.body[s.body.length - 1]
-      occupiedAll.delete(tail.x + ':' + tail.y)
-    }
+  // Spawn food if needed
+  if (snakes.some((s) => s.alive && willEatIntent[s.id])) {
+    const allOcc = snakes.flatMap((sn) => sn.body)
+    food = spawnFood(size, allOcc)
+    events.push({ type: 'spawnFood', at: food })
   }
 
   const p1Alive = snakes.find((s) => s.id === 'p1')!.alive
@@ -150,16 +169,7 @@ export function step(state: GameState, settings: GameSettings): GameState {
     phase = 'gameover'
   }
 
-  return {
-    ...state,
-    food,
-    snakes,
-    scores,
-    phase,
-    winner,
-    tick: state.tick + 1,
-    events,
-  }
+  return { ...state, food, snakes, scores, phase, winner, tick: state.tick + 1, events }
 }
 
 export function setSnakeDir(s: Snake, d: Direction) {
