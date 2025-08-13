@@ -1,0 +1,1 @@
+{"root":["./src/App.tsx","./src/main.tsx","./src/components/GameBoard.tsx","./src/components/ScoreBoard.tsx","./src/components/SettingsPanel.tsx","./src/hooks/useGame.ts","./src/state/gameLogic.ts","./src/state/gameTypes.ts"],"version":"5.9.2"}

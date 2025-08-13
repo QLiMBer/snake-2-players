@@ -1,0 +1,86 @@
+/* Theme variables */
+:root {
+  --bg: #0b0f14;
+  --panel: #121820;
+  --muted: #8aa0b3;
+  --text: #dde7f1;
+  --accent: #6dd3ff;
+  --p1: #8bff87;
+  --p2: #ffa8a8;
+  --grid: color-mix(in oklab, var(--text) 8%, transparent);
+}
+
+/* Light theme override */
+:root[data-theme='light'] {
+  --bg: #fbfdff;
+  --panel: #f2f6fa;
+  --muted: #5b6b79;
+  --text: #0f1720;
+  --accent: #1461ff;
+  --p1: #0ba95b;
+  --p2: #c42347;
+  --grid: color-mix(in oklab, var(--text) 10%, transparent);
+}
+
+* { box-sizing: border-box }
+html, body, #root { height: 100% }
+body {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji';
+  background: radial-gradient(1200px 800px at 80% -10%, #1a2430 0%, transparent 60%),
+              radial-gradient(1000px 600px at -10% 110%, #1c2a38 0%, transparent 55%),
+              var(--bg);
+  color: var(--text);
+}
+
+.app-root { display: grid; grid-template-rows: auto 1fr auto; min-height: 100% }
+.app-header, .app-footer { display:flex; align-items:center; justify-content:space-between; padding: 14px 18px }
+.app-header { border-bottom: 1px solid color-mix(in oklab, var(--text) 10%, transparent) }
+.app-footer { border-top: 1px solid color-mix(in oklab, var(--text) 10%, transparent); color: var(--muted); font-size: 13px }
+.app-header h1 { font-size: 18px; margin: 0 }
+
+.layout { display: grid; grid-template-columns: 280px 1fr; gap: 16px; padding: 16px; }
+@media (max-width: 880px) { .layout { grid-template-columns: 1fr } }
+
+.sidebar .panel { background: var(--panel); border: 1px solid color-mix(in oklab, var(--text) 8%, transparent); border-radius: 14px; padding: 16px }
+.panel h2 { font-size: 16px; margin: 0 0 10px }
+.field { display:grid; grid-template-columns: 1fr auto; gap: 8px; align-items:center; padding: 10px 0; border-bottom: 1px dashed color-mix(in oklab, var(--text) 10%, transparent) }
+.field:last-child { border-bottom: none }
+.field label { color: var(--muted) }
+.hint { color: var(--muted); font-size: 12px; justify-self:end }
+
+.btn { appearance: none; border: 1px solid color-mix(in oklab, var(--text) 12%, transparent); padding: 6px 10px; border-radius: 10px; background: color-mix(in oklab, var(--panel) 80%, black 20%); color: var(--text); cursor: pointer }
+.btn:hover { border-color: color-mix(in oklab, var(--text) 20%, transparent) }
+.btn:active { transform: translateY(1px) }
+
+.stage { display:grid; gap: 12px; align-content:start }
+.score { display:flex; gap: 10px }
+.pill { display:flex; align-items:center; gap: 8px; padding: 6px 10px; border-radius: 999px; background: color-mix(in oklab, var(--panel) 70%, black 30%); border: 1px solid color-mix(in oklab, var(--text) 10%, transparent) }
+.pill.p1 { box-shadow: inset 0 0 0 2px color-mix(in oklab, var(--p1) 45%, transparent) }
+.pill.p2 { box-shadow: inset 0 0 0 2px color-mix(in oklab, var(--p2) 45%, transparent) }
+.pill .label { font-weight: 600; letter-spacing: .04em; opacity:.9 }
+.pill .value { font-variant-numeric: tabular-nums }
+
+.board-wrap { display:flex; justify-content:center; align-items:center }
+.board { position:relative; background: color-mix(in oklab, var(--panel) 85%, black 15%); border: 1px solid color-mix(in oklab, var(--text) 12%, transparent); border-radius: 16px; overflow:hidden }
+
+/* Subtle grid overlay */
+.board.grid::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: calc(100% / var(--cells)) calc(100% / var(--cells)),
+                   calc(100% / var(--cells)) calc(100% / var(--cells));
+  pointer-events: none;
+}
+
+.board-placeholder { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap: 8px; color: var(--muted) }
+.board-placeholder span { color: var(--text); font-weight:600 }
+
+/* Dynamic CSS var syncing to board size (set on inline style by component soon if needed) */
+/* default fallback */
+:root { --cells: 24 }
+
