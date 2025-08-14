@@ -1,19 +1,28 @@
 Snake — 2 Players (Vite + React + TypeScript)
 
 Getting started
-- Install deps: `npm install`
-- Start dev server: `npm run dev`
+- Install deps: `npm ci` (or `npm install`)
+- Start dev server: `npm run dev` (http://localhost:5173)
 - Build: `npm run build`
 - Preview build: `npm run preview`
 
-What’s included
-- Vite + React + TypeScript scaffold
-- Dark/light theme toggle
-- Subtle grid overlay on the board
-- Settings panel with wall-collision, grid toggle, board size, speed
-- Scoreboard placeholders for Player 1 and 2
+Testing
+- Run tests: `npm run test`
+- Watch mode: `npm run test:watch`
+- Coverage: `npm run test:coverage` (outputs `coverage/`)
 
-Next steps
-- Game over screen and restart flow
-- Countdown at start of each round
-- Add more animations and polish
+Features
+- Two-player snake with rounds and cumulative scoring
+- Countdown, game over, and match over states
+- Subtle animations for food, death, and spawn events
+- Wall collision toggle, grid overlay, board size, speed, round count
+- Dark/light theme toggle with CSS variables
+
+Controls
+- Player 1: WASD
+- Player 2: Arrow keys
+- Global: Space = pause/resume, R = restart match, Enter/N = next round
+
+Project notes
+- Source lives in `src/` (components, state, hooks, styles)
+- Tests co-located as `*.test.ts(x)`; setup in `src/test/setup.ts`
