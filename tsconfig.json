@@ -13,7 +13,11 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "types": [
+      "vitest/jsdom",
+      "vitest/globals"
+    ]
   },
   "include": ["src"],
   "exclude": [
