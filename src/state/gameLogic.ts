@@ -65,7 +65,7 @@ export function initialState(settings: GameSettings): GameState {
   return {
     food,
     snakes: [p1, p2],
-    phase: 'paused',
+    phase: 'countdown',
     countdownMsLeft: 3000,
     tick: 0,
     scores: { p1: 0, p2: 0 },
