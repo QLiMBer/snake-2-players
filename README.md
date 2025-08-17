@@ -18,6 +18,8 @@ Features
 - Wall collision toggle (default: Off), grid overlay, board size, speed, round count
 - Dark/light theme toggle with CSS variables
 - Starts paused; Space/Enter/R begin the countdown
+- Lightweight sound effects for eats, deaths, countdown, and wins
+- More epic match ending with confetti and a short fanfare
 
 Controls
 - Player 1: WASD

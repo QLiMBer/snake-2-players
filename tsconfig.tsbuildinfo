@@ -1,1 +1,1 @@
-{"root":["./src/App.tsx","./src/main.tsx","./src/components/GameBoard.tsx","./src/components/ScoreBoard.tsx","./src/components/SettingsPanel.tsx","./src/hooks/useGame.ts","./src/state/gameLogic.ts","./src/state/gameTypes.ts"],"version":"5.9.2"}
+{"root":["./src/App.tsx","./src/main.tsx","./src/sound.ts","./src/components/GameBoard.tsx","./src/components/ScoreBoard.tsx","./src/components/SettingsPanel.tsx","./src/hooks/useGame.ts","./src/state/gameLogic.test.ts","./src/state/gameLogic.ts","./src/state/gameTypes.ts","./src/test/setup.ts"],"errors":true,"version":"5.9.2"}
