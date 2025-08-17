@@ -38,10 +38,14 @@ export function useGame(settings: GameSettings) {
 
   const toggleRunning = useCallback(() => setState((s) => {
     if (s.phase === 'running') return { ...s, phase: 'paused' }
-    if (s.phase === 'paused') return { ...s, phase: 'running' }
+    if (s.phase === 'paused') return { ...s, phase: 'countdown', countdownMsLeft: 3000 }
     return s
   }), [])
-  const reset = useCallback(() => setState(initialState(settings)), [settings])
+  const reset = useCallback(() => setState((_) => {
+    const st = initialState(settings)
+    // Restart should immediately start the countdown
+    return { ...st, phase: 'countdown', countdownMsLeft: 3000 }
+  }), [settings])
   const nextRound = useCallback(() => setState((s) => {
     if (s.phase !== 'gameover') return s
     if (s.round >= s.roundsTotal) return s
@@ -63,7 +67,11 @@ export function useGame(settings: GameSettings) {
         case ' ': toggleRunning(); e.preventDefault(); break
         case 'r': case 'R': reset(); break
         case 'n': case 'N': setState((s) => (s.phase === 'gameover' ? prepareNextRound(s, settings) : s)); break
-        case 'Enter': setState((s) => (s.phase === 'gameover' ? prepareNextRound(s, settings) : s)); break
+        case 'Enter': setState((s) => {
+          if (s.phase === 'gameover') return prepareNextRound(s, settings)
+          if (s.phase === 'paused') return { ...s, phase: 'countdown', countdownMsLeft: 3000 }
+          return s
+        }); break
       }
     }
     window.addEventListener('keydown', onKey)

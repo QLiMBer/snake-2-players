@@ -72,9 +72,7 @@ export function SettingsPanel({
         <span className="hint">{settings.roundsTotal}</span>
       </div>
 
-      <p className="muted">
-        Tip: P1 uses WASD, P2 uses Arrow Keys. Space to pause.
-      </p>
+      {/* Controls info moved to footer */}
     </div>
   )
 }

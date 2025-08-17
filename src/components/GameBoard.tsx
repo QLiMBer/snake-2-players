@@ -145,14 +145,14 @@ export function GameBoard({ size, showGrid, state, onNextRound, onRestart }: Pro
           <div className="board-placeholder" aria-hidden>
             <span>{state.roundWinner === 'draw' ? 'Draw!' : `${state.roundWinner?.toUpperCase()} Wins Round ${state.round}`}</span>
             <small>Press N or Enter — Next: Round {Math.min(state.round + 1, state.roundsTotal)} of {state.roundsTotal}</small>
-            <button className="btn" onClick={onNextRound}>Next Round</button>
+            <button className="btn" onClick={onNextRound}>Next Round (N / Enter)</button>
           </div>
         )}
         {state.phase === 'matchover' && (
           <div className="board-placeholder" aria-hidden>
             <span>{state.matchWinner === 'draw' ? 'Match Draw!' : `${state.matchWinner?.toUpperCase()} Wins the Match!`}</span>
             <small>Final Score — P1 {state.scores.p1} · P2 {state.scores.p2}</small>
-            <button className="btn" onClick={onRestart}>Restart Match</button>
+            <button className="btn" onClick={onRestart}>Restart Match (R)</button>
           </div>
         )}
       </div>

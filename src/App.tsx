@@ -9,7 +9,7 @@ export default function App() {
   const [settings, setSettings] = useState<GameSettings>({
     boardSize: 24,
     tickMs: 120,
-    wallCollision: true,
+    wallCollision: false,
     showGrid: true,
     theme: 'dark',
     roundsTotal: 10,
@@ -64,7 +64,7 @@ export default function App() {
           </div>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             <button className="btn" onClick={game.toggleRunning} disabled={game.state.phase === 'countdown' || game.state.phase === 'gameover'}>
-              {game.state.phase === 'running' ? 'Pause' : 'Resume'}
+              {game.state.phase === 'running' ? 'Pause' : 'Resume (Space)'}
             </button>
             <button className="btn" onClick={game.reset}>Restart Match (R)</button>
           </div>
@@ -73,7 +73,7 @@ export default function App() {
       </main>
 
       <footer className="app-footer">
-        <span>Controls: P1 ⌨️ WASD · P2 ⌨️ Arrows · Space to pause · R to restart match</span>
+        <span>Controls: P1 ⌨️ WASD · P2 ⌨️ Arrows · Space to pause/resume · Enter or N for next round · R to restart match</span>
       </footer>
     </div>
   )
